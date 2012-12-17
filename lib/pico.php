@@ -1,7 +1,7 @@
 <?php 
 
 class Pico {
-	const IN_EXT = '.txt';
+	const IN_EXT = '.md';
 
 	function __construct()
 	{
