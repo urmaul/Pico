@@ -1,6 +1,7 @@
 <?php 
 
 class Pico {
+	const IN_EXT = '.txt';
 
 	function __construct()
 	{
@@ -17,11 +18,12 @@ class Pico {
 		else $file = CONTENT_DIR .'index';
 
 		// Load the file
-		if(is_dir($file)) $file = CONTENT_DIR . $url .'/index.txt';
-		else $file .= '.txt';
+		if(is_dir($file)) $file = CONTENT_DIR . $url .'/index';
+		
+		$file .= self::IN_EXT;
 
 		if(file_exists($file)) $content = file_get_contents($file);
-		else $content = file_get_contents(CONTENT_DIR .'404.txt');
+		else $content = file_get_contents(CONTENT_DIR .'404'.self::IN_EXT);
 
 		$meta = $this->read_file_meta($content);
 		$content = preg_replace('#/\*.+?\*/#s', '', $content); // Remove comments and meta
