@@ -85,12 +85,13 @@ class Pico {
 	{
         $repcontent = $content;
         $vars = $this->get_config();
-        while(preg_match('/^[ \t\/*#@]*\w+:(.*)$/mi', $repcontent, $match) && $match[1]){
-            $var =  lcfirst(str_replace(':'.$match[1], '', $match[0]));
-            $repcontent = str_replace($match[0], '', $repcontent);
-            $vars[ $var ] = trim(preg_replace("/\s*(?:\*\/|\?>).*/", '', $match[1]));
-		}
-                
+        
+        if (preg_match_all('/^[ \t\/*@]*(.+)\s*:\s*(.*)$/mi', $content, $matches, PREG_SET_ORDER)) {
+            foreach ($matches as $match) {
+                $vars[ $match[1] ] = $match[2];
+            }
+        }
+        
         return $vars;
 	}
 
