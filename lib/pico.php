@@ -68,17 +68,15 @@ class Pico {
 			'description' => 'Description',
 			'robots'      => 'Robots'
 		);
+        $meta = $config['meta'];
 
 	 	foreach ($headers as $field => $regex){
 			if (preg_match('/^[ \t\/*#@]*' . preg_quote($regex, '/') . ':(.*)$/mi', $content, $match) && $match[1]){
-                $headers[ $field ] = trim(preg_replace("/\s*(?:\*\/|\?>).*/", '', $match[1]));
-			}
-            else {
-				$headers[ $field ] = $config[$field];//'';
+                $meta[ $field ] = trim(preg_replace("/\s*(?:\*\/|\?>).*/", '', $match[1]));
 			}
 		}
                 
-		return $headers;
+		return $meta;
 	}
         
     function read_file_vars($content)
@@ -103,9 +101,11 @@ class Pico {
 			'base_url' => $this->base_url(),
 			'theme' => 'default',
 			'enable_cache' => false,
-            'title' => '',
-            'description' => '',
-            'robots' => '',
+            'meta' => array(
+                'title' => '',
+                'description' => '',
+                'robots' => '',
+            ),
             '#template' => 'index.twig',
 		);
 
