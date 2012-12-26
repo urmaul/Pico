@@ -2,10 +2,14 @@
 
 class Pico {
 	const IN_EXT = '.md';
+    
+    protected $config;
 
 	function __construct()
 	{
-		// Get request url and script url
+		$this->config = $this->get_config();
+
+        // Get request url and script url
 		$url = '';
 		$request_url = (isset($_SERVER['REQUEST_URI'])) ? $_SERVER['REQUEST_URI'] : '';
 		$script_url  = (isset($_SERVER['PHP_SELF'])) ? $_SERVER['PHP_SELF'] : '';
@@ -31,7 +35,7 @@ class Pico {
 		$content = $this->parse_content($content);
 
 		// Load the settings
-		$settings = $this->get_config();
+		$settings = $this->config;
 		$env = array('autoescape' => false);
 		if($settings['enable_cache']) $env['cache'] = CACHE_DIR;
 		
@@ -62,13 +66,18 @@ class Pico {
 
 	function read_file_meta($content)
 	{
-        $config = $this->get_config();
 		$headers = array(
 			'title'       => 'Title',
 			'description' => 'Description',
 			'robots'      => 'Robots'
 		);
-        $meta = $config['meta'];
+        $meta = $this->config['meta'];
+        
+        if ($this->config['parse_title']) {
+            if (preg_match('~^# (.*)$~m', $content, $match) && $match[1]) {
+                $meta['title'] = $match[1];
+            }
+        }
 
 	 	foreach ($headers as $field => $regex){
 			if (preg_match('/^[ \t\/*#@]*' . preg_quote($regex, '/') . ':(.*)$/mi', $content, $match) && $match[1]){
@@ -81,7 +90,7 @@ class Pico {
         
     function read_file_vars($content)
 	{
-        $vars = $this->get_config();
+        $vars = $this->config;
         
         if (preg_match_all('/^[ \t\/*@]*(.+)\s*:\s*(.*)$/mi', $content, $matches, PREG_SET_ORDER)) {
             foreach ($matches as $match) {
@@ -107,6 +116,7 @@ class Pico {
                 'robots' => '',
             ),
             '#template' => 'index.twig',
+            'parse_title' => true,
 		);
 
 		foreach($defaults as $key=>$val){

@@ -7,6 +7,7 @@ $config['site_title'] = 'Pico';			// Site title
 $config['base_url'] = ''; 				// Override base URL (e.g. http://example.com)
 $config['theme'] = 'default'; 			// Set the theme (defaults to "default")
 $config['enable_cache'] = false; 		// Enable caching
+$config['parse_title'] = true; 			// Use first "# " header as page title
 
 To add a custom config setting:
 
