@@ -83,7 +83,6 @@ class Pico {
         
     function read_file_vars($content)
 	{
-        $repcontent = $content;
         $vars = $this->get_config();
         
         if (preg_match_all('/^[ \t\/*@]*(.+)\s*:\s*(.*)$/mi', $content, $matches, PREG_SET_ORDER)) {
