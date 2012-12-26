@@ -26,6 +26,7 @@ class Pico {
 		else $content = file_get_contents(CONTENT_DIR .'404'.self::IN_EXT);
 
 		$meta = $this->read_file_meta($content);
+                $vars = $this->read_file_vars($content);
 		$content = preg_replace('#/\*.+?\*/#s', '', $content); // Remove comments and meta
 		$content = $this->parse_content($content);
 
@@ -38,7 +39,7 @@ class Pico {
 		Twig_Autoloader::register();
 		$loader = new Twig_Loader_Filesystem(THEMES_DIR . $settings['theme']);
 		$twig = new Twig_Environment($loader, $env);
-		echo $twig->render('index.html', array(
+		echo $twig->render($vars['#template'], array(
 			'config' => $settings,
 			'base_dir' => rtrim(ROOT_DIR, '/'),
 			'base_url' => $settings['base_url'],
@@ -46,7 +47,8 @@ class Pico {
 			'theme_url' => $settings['base_url'] .'/'. basename(THEMES_DIR) .'/'. $settings['theme'],
 			'site_title' => $settings['site_title'],
 			'meta' => $meta,
-			'content' => $content
+			'content' => $content,
+                        'vars' => $vars,
 		));
 	}
 
@@ -60,6 +62,7 @@ class Pico {
 
 	function read_file_meta($content)
 	{
+                $config = $this->get_config();
 		$headers = array(
 			'title'       => 'Title',
 			'description' => 'Description',
@@ -68,13 +71,28 @@ class Pico {
 
 	 	foreach ($headers as $field => $regex){
 			if (preg_match('/^[ \t\/*#@]*' . preg_quote($regex, '/') . ':(.*)$/mi', $content, $match) && $match[1]){
-				$headers[ $field ] = trim(preg_replace("/\s*(?:\*\/|\?>).*/", '', $match[1]));
-			} else {
-				$headers[ $field ] = '';
+                               $headers[ $field ] = trim(preg_replace("/\s*(?:\*\/|\?>).*/", '', $match[1]));
+			}
+                        else {
+				$headers[ $field ] = $config[$field];//'';
 			}
 		}
-
+                
 		return $headers;
+	}
+        
+        function read_file_vars($content)
+	{
+                $config = $this->get_config();
+		$repcontent = $content;
+                $vars = $config;
+                while(preg_match('/^[ \t\/*#@]*\w+:(.*)$/mi', $repcontent, $match) && $match[1]){
+                               $var =  lcfirst(str_replace(':'.$match[1], '', $match[0]));
+                               $repcontent = str_replace($match[0], '', $repcontent);
+                               $vars[ $var ] = trim(preg_replace("/\s*(?:\*\/|\?>).*/", '', $match[1]));
+		}
+                
+                return $vars;
 	}
 
 	function get_config()
@@ -85,7 +103,11 @@ class Pico {
 			'site_title' => 'Pico',
 			'base_url' => $this->base_url(),
 			'theme' => 'default',
-			'enable_cache' => false
+			'enable_cache' => false,
+                        'title' => '',
+                        'description' => '',
+                        'robots' => '',
+                        '#template' => 'index.twig',
 		);
 
 		foreach($defaults as $key=>$val){
