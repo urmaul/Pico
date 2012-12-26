@@ -14,6 +14,4 @@ require('config.php');
 require(LIB_DIR .'markdown.php');
 require(LIB_DIR .'twig/lib/Twig/Autoloader.php');
 require(LIB_DIR .'pico.php');
-$pico = new Pico();
-
-?>
+new Pico();
